@@ -185,6 +185,38 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   png_set_scale_16(png_handler.png_ptr);
   png_set_tRNS_to_alpha(png_handler.png_ptr);
 
+  // Expand grays of 1/2/4 bits to 8 bits
+  png_set_expand_gray_1_2_4_to_8(png_handler.png_ptr);
+
+  // If it has a palette, convert it to RGB
+  png_set_palette_to_rgb(png_handler.png_ptr);
+
+  // Strip and swap previous settings
+  png_set_strip_16(png_handler.png_ptr);
+  png_set_strip_alpha(png_handler.png_ptr);
+  png_set_packswap(png_handler.png_ptr);
+  png_set_swap_alpha(png_handler.png_ptr);
+
+  // BGR / inversion
+  png_set_bgr(png_handler.png_ptr);
+  png_set_invert_mono(png_handler.png_ptr);
+  png_set_invert_alpha(png_handler.png_ptr);
+
+  // Add filler and alpha channel
+  png_set_filler(png_handler.png_ptr, 0xFF, PNG_FILLER_BEFORE);
+  png_set_add_alpha(png_handler.png_ptr, 0x80, PNG_FILLER_AFTER);
+
+  // Background and gamma
+  {
+    png_color_16 background;
+    background.red   = 0x8000;
+    background.green = 0x8000;
+    background.blue  = 0x8000;
+    png_set_background(png_handler.png_ptr, &background,
+                        PNG_BACKGROUND_GAMMA_SCREEN, 0, 2.2f);
+  }
+  png_set_gamma(png_handler.png_ptr, 0.45455f, 1.0f);
+
   int passes = png_set_interlace_handling(png_handler.png_ptr);
 
   png_read_update_info(png_handler.png_ptr, png_handler.info_ptr);
